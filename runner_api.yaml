@@ -36,51 +36,44 @@ paths:
 components:
   schemas:
     executionInfrastructure:
-      oneOf:
-        - type: object
-          properties:
-            infraData:
-              type: string
-              format: byte
-              description: Opaque data of infra initialization parameters.
-        - type: object
-          properties:
-            projectId:
-              type: string
-              #pattern: 
-            orgId:
-              type: string
-              #pattern: 
-            accountId:
-              type: string
-              #pattern: 
-            pipelineId:
-              type: string
-              #pattern:
-            stageId:
-              type: string
-              #pattern:      
-            workDir:
-              type: string
-              description: From which path to execute commands
-            pool:
-              $ref: "#/components/schemas/resourcePoolIdentifier"
-            tags:
-              description: tags applied to the execution infrastructure being created.
-              type: object
-              additionalProperties:
-                type: string
-            logConfig:
-              $ref: "#/components/schemas/logConfig"
-            proxySetting:
-              $ref: "#/components/schemas/proxySetting"
-            attributes:
-              type: object
-              description: additional key-value attributes
-              example:
-                "git_username": "xingchi.jin"  # eg. ci set up github credentials at initialization phase. This credential is cached for subsequent run steps.
-                "api_key": "ghp_xxxxxx"
-              additionalProperties: true
+      type: object
+      properties:
+        projectId:
+          type: string
+          #pattern: 
+        orgId:
+          type: string
+          #pattern: 
+        accountId:
+          type: string
+          #pattern: 
+        pipelineId:
+          type: string
+          #pattern:
+        stageId:
+          type: string
+          #pattern:      
+        workDir:
+          type: string
+          description: From which path to execute commands
+        pool:
+          $ref: "#/components/schemas/resourcePoolIdentifier"
+        tags:
+          description: tags applied to the execution infrastructure being created.
+          type: object
+          additionalProperties:
+            type: string
+        logConfig:
+          $ref: "#/components/schemas/logConfig"
+        proxySetting:
+          $ref: "#/components/schemas/proxySetting"
+        attributes:
+          type: object
+          description: additional key-value attributes
+          example:
+            "git_username": "xingchi.jin"  # eg. ci set up github credentials at initialization phase. This credential is cached for subsequent run steps.
+            "api_key": "ghp_xxxxxx"
+          additionalProperties: true
     resourcePoolIdentifier:
       type: object
       properties:
@@ -123,16 +116,18 @@ components:
         volumes:
           type: array
           items:
-            $ref: "#/components/schemas/volumes"
+            $ref: "#/components/schemas/volume"
         files:
           type: array
           items:
             $ref: "#/components/schemas/file"
-    volumes:
+    volume:
       type: object
-      oneOf:
-        - $ref: "#/components/schemas/emptyDir"
-        - $ref: "#/components/schemas/hostPath"
+      properties:
+        emptyDir:
+          $ref: "#/components/schemas/emptyDir"
+        hostPath:
+          $ref: "#/components/schemas/hostPath"
     emptyDir:
       type: object
       properties:
