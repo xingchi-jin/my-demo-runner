@@ -1,0 +1,184 @@
+openapi: 3.0.3
+info:
+  title: Delegate Runner
+  description: |-
+    This is the API for Delegate Runner
+  version: 1.0.11
+externalDocs:
+  description: Delegate Runner APIs
+  url: https://developer.harness.io/
+servers:
+  - url: https://app.harness.io
+tags:
+  - name: runner
+    description: Runner APIs 
+paths:
+  /executionInfrastructure:
+    post:
+      tags:
+        - runner
+      summary: Add a execution infrastructure
+      description: Add a new execution infrastructure
+      operationId: initialize an execution infrastructure
+      requestBody:
+        description: Create a new execution infrastructure
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/executionInfrastructure'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '405':
+          description: Invalid input
+
+components:
+  schemas:
+    executionInfrastructure:
+      oneOf:
+        - type: object
+          properties:
+            infraData:
+              type: string
+              format: byte
+              description: Opaque data of infra initialization parameters.
+        - type: object
+          properties:
+            projectId:
+              type: string
+              #pattern: 
+            orgId:
+              type: string
+              #pattern: 
+            accountId:
+              type: string
+              #pattern: 
+            pipelineId:
+              type: string
+              #pattern:
+            stageId:
+              type: string
+              #pattern:      
+            workDir:
+              type: string
+              description: From which path to execute commands
+            pool:
+              $ref: "#/components/schemas/resourcePoolIdentifier"
+            tags:
+              description: tags applied to the execution infrastructure being created.
+              type: object
+              additionalProperties:
+                type: string
+            logConfig:
+              $ref: "#/components/schemas/logConfig"
+            proxySetting:
+              $ref: "#/components/schemas/proxySetting"
+            attributes:
+              type: object
+              description: additional key-value attributes
+              example:
+                "git_username": "xingchi.jin"  # eg. ci set up github credentials at initialization phase. This credential is cached for subsequent run steps.
+                "api_key": "ghp_xxxxxx"
+              additionalProperties: true
+    resourcePoolIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+          description: allocate execution infrastructure from the resource pool identified by "id".
+          maxLength: 50
+        fallbackIds:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+          description: allocate execution infrastructure from the fallback pools when the one identified by "id" does not work.
+    logConfig:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        token:
+          type: string
+          maxLength: 50
+        indirectUpload:
+          type: boolean
+          description: Whether to directly upload via signed link or using log stream service
+    proxySetting:
+      type: object
+      properties:
+        httpProxy:
+          type: string
+          format: uri
+        httpsProxy:
+          type: string
+          format: uri
+        noProxy:
+          type: boolean
+    dataShareObject:
+      type: object
+      properties:
+        volumes:
+          type: array
+          items:
+            $ref: "#/components/schemas/volumes"
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/file"
+    volumes:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/emptyDir"
+        - $ref: "#/components/schemas/hostPath"
+    emptyDir:
+      type: object
+      properties:
+        volumeId:
+          type: string
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 30
+        medium:
+          type: string
+        sizeLimit:
+          type: integer
+          maximum: 1000000000
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+    hostPath:
+      type: object
+      properties:
+        volumeId:
+          type: string
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 30
+        path:
+          type: string
+          format: uri-reference
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+    file:
+      type: object
+      properties:
+        path:
+          type: string
+          format: uri-reference
+        mode:
+          type: string
+          maxLength: 4
+          example: "0777"
+        data:
+          type: string
+          maxLength: 10000000  # 10 MB
+        isDir:
+          type: boolean  
