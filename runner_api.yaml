@@ -1,22 +1,21 @@
 openapi: 3.0.3
 info:
   title: Delegate Runner
-  description: |-
-    This is the API for Delegate Runner
+  description: This is the API for Delegate Runner
   version: 1.0.11
 externalDocs:
   description: Delegate Runner APIs
   url: https://developer.harness.io/
 servers:
-  - url: https://app.harness.io
+- url: https://app.harness.io
 tags:
-  - name: runner
-    description: Runner APIs 
+- name: runner
+  description: Runner APIs
 paths:
   /executionInfrastructure:
     post:
       tags:
-        - runner
+      - runner
       summary: Add a execution infrastructure
       description: Add a new execution infrastructure
       operationId: initialize an execution infrastructure
@@ -28,11 +27,10 @@ paths:
               $ref: '#/components/schemas/executionInfrastructure'
         required: true
       responses:
-        '200':
+        "200":
           description: Successful operation
-        '405':
+        "405":
           description: Invalid input
-
 components:
   schemas:
     executionInfrastructure:
@@ -40,108 +38,110 @@ components:
       properties:
         projectId:
           type: string
-          #pattern: 
         orgId:
           type: string
-          #pattern: 
         accountId:
           type: string
-          #pattern: 
         pipelineId:
           type: string
-          #pattern:
+        stageRuntimeId:
+          type: string
         stageId:
           type: string
-          #pattern:      
+        correlationId:
+          type: string
+          description: id of the statemachine entity from harness delegate
+        infraType:
+          type: string
         workDir:
           type: string
           description: From which path to execute commands
         pool:
-          $ref: "#/components/schemas/resourcePoolIdentifier"
+          $ref: '#/components/schemas/resourcePoolIdentifier'
         tags:
-          description: tags applied to the execution infrastructure being created.
           type: object
           additionalProperties:
             type: string
+          description: tags applied to the execution infrastructure being created.
         logConfig:
-          $ref: "#/components/schemas/logConfig"
-        proxySetting:
-          $ref: "#/components/schemas/proxySetting"
+          $ref: '#/components/schemas/logConfig'
+        network:
+          $ref: '#/components/schemas/network'
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/volume'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/file'
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/secret'
+        envs:
+          type: string
+          additionalProperties:
+            type: string
         attributes:
-          type: object
+          type: string
+          additionalProperties:
+            type: string
           description: additional key-value attributes
           example:
-            "git_username": "xingchi.jin"  # eg. ci set up github credentials at initialization phase. This credential is cached for subsequent run steps.
-            "api_key": "ghp_xxxxxx"
-          additionalProperties: true
+            git_username: xingchi.jin
+            api_key: ghp_xxxxxx
     resourcePoolIdentifier:
       type: object
       properties:
         id:
-          type: string
-          description: allocate execution infrastructure from the resource pool identified by "id".
           maxLength: 50
+          type: string
+          description: allocate execution infrastructure from the resource pool identified
+            by "id".
         fallbackIds:
-          type: array
           maxItems: 5
+          type: array
+          description: allocate execution infrastructure from the fallback pools when
+            the one identified by "id" does not work.
           items:
             type: string
-          description: allocate execution infrastructure from the fallback pools when the one identified by "id" does not work.
     logConfig:
       type: object
       properties:
         url:
           type: string
           format: uri
-        token:
+        logKey:
           type: string
+        token:
           maxLength: 50
+          type: string
         indirectUpload:
           type: boolean
-          description: Whether to directly upload via signed link or using log stream service
-    proxySetting:
-      type: object
-      properties:
-        httpProxy:
-          type: string
-          format: uri
-        httpsProxy:
-          type: string
-          format: uri
-        noProxy:
-          type: boolean
-    dataShareObject:
-      type: object
-      properties:
-        volumes:
-          type: array
-          items:
-            $ref: "#/components/schemas/volume"
-        files:
-          type: array
-          items:
-            $ref: "#/components/schemas/file"
+          description: Whether to directly upload via signed link or using log stream
+            service
     volume:
       type: object
       properties:
         emptyDir:
-          $ref: "#/components/schemas/emptyDir"
+          $ref: '#/components/schemas/emptyDir'
         hostPath:
-          $ref: "#/components/schemas/hostPath"
+          $ref: '#/components/schemas/hostPath'
     emptyDir:
       type: object
       properties:
         volumeId:
-          type: string
           maxLength: 30
+          type: string
         name:
-          type: string
           maxLength: 30
+          type: string
         medium:
           type: string
         sizeLimit:
-          type: integer
           maximum: 1000000000
+          type: integer
         labels:
           type: object
           additionalProperties:
@@ -150,11 +150,11 @@ components:
       type: object
       properties:
         volumeId:
-          type: string
           maxLength: 30
+          type: string
         name:
-          type: string
           maxLength: 30
+          type: string
         path:
           type: string
           format: uri-reference
@@ -169,11 +169,33 @@ components:
           type: string
           format: uri-reference
         mode:
-          type: string
           maxLength: 4
+          type: string
           example: "0777"
         data:
+          maxLength: 10000000
           type: string
-          maxLength: 10000000  # 10 MB
         isDir:
-          type: boolean  
+          type: boolean
+    secret:
+      type: object
+      properties:
+        id:
+          type: string
+        data:
+          type: string
+        mask:
+          type: boolean
+    network:
+      type: object
+      properties:
+        id:
+          type: string
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+        options:
+          type: object
+          additionalProperties:
+            type: string    
