@@ -18,7 +18,7 @@ paths:
       - runner
       summary: Add a execution infrastructure
       description: Add a new execution infrastructure
-      operationId: initialize an execution infrastructure
+      operationId: createExecutionInfra
       requestBody:
         description: Create a new execution infrastructure
         content:
@@ -31,11 +31,74 @@ paths:
           description: Successful operation
         "405":
           description: Invalid input
+  /execution:
+    post:
+      tags:
+      - runner
+      summary: Do an execution
+      description: Do an execution
+      operationId: execute
+      requestBody:
+        description: Do an execution
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/execution'
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "405":
+          description: Invalid input
 components:
   schemas:
-    executionInfrastructure:
+    execution:
       type: object
       properties:
+        id:
+          type: string
+          description: "ID of this execution"
+        infraId:
+          type: string
+          description: "ID of the infra to use"
+        detach:
+          type: boolean
+          description: "background step need it to be true"
+        mountDockerSocket:
+          type: boolean
+          description: "Mount docker socket of the runner's"
+        logConfig:
+          $ref: '#/components/schemas/logConfig'
+        envs:
+          type: string
+          additionalProperties:
+            type: string
+        workDir:
+          type: string
+          description: From which path to execute commands
+        secrets:
+          type: string
+          description: "All descrypted secrets. Log will be sanitized with these secrets"
+          additionalProperties:
+            type: string
+        runConfig:
+          $ref: '#/components/schemas/runConfig'
+        imagePull:
+          $ref: '#/components/schemas/imagePull'
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/volume'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/file'
+        network:
+          $ref: '#/components/schemas/networksToAttach'
+        
+    executionInfrastructure:
+      type: object
+      properties:  # put harness ids into an optional object
         projectId:
           type: string
         orgId:
@@ -51,11 +114,11 @@ components:
         correlationId:
           type: string
           description: id of the statemachine entity from harness delegate
-        infraType:
-          type: string
-        workDir:
-          type: string
-          description: From which path to execute commands
+        mountDockerSocket:
+          type: boolean
+          description: "Mount docker socket of the runner's"
+        privileged:
+          type: boolean
         pool:
           $ref: '#/components/schemas/resourcePoolIdentifier'
         tags:
@@ -76,9 +139,10 @@ components:
           items:
             $ref: '#/components/schemas/file'
         secrets:
-          type: array
-          items:
-            $ref: '#/components/schemas/secret'
+          type: string
+          description: "All descrypted secrets. Log will be sanitized with these secrets"
+          additionalProperties:
+            type: string
         envs:
           type: string
           additionalProperties:
@@ -177,15 +241,6 @@ components:
           type: string
         isDir:
           type: boolean
-    secret:
-      type: object
-      properties:
-        id:
-          type: string
-        data:
-          type: string
-        mask:
-          type: boolean
     network:
       type: object
       properties:
@@ -198,4 +253,58 @@ components:
         options:
           type: object
           additionalProperties:
-            type: string    
+            type: string
+# execution components
+    runConfig:
+      type: object
+      properties:
+        command:
+          type: array
+          items:
+            type: string
+        entrypoint:
+          type: array
+          items:
+            type: string
+    registryAuth:
+      type: object
+      properties:
+        address:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+    imagePull:
+      type: object
+      properties:
+        image:
+          type: string
+        auth:
+          $ref: '#/components/schemas/registryAuth'
+    networksToAttach:
+      type: object
+      properties:
+        infraNetwork:
+          type: string
+        userDefinedNetworks:
+          type: array
+          items:
+            type: string
+    computeResources:
+      type: object
+      properties:
+        cpuPeriod:
+          type: integer
+        cpuQuota:
+          type: integer
+        cpuShares:
+          type: integer
+        cpuSet:
+          type: array
+          items:
+            type: string
+        memLimit:
+          type: integer
+        memSwapLimit:
+          type: integer
