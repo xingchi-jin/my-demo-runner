@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_my_demo_runner_1696442545171-pr-trigger-input-set
+  identifier: Build_my_demo_runner_1696442545171prtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_my_demo_runner_1696442545171
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
